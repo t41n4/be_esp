@@ -94,14 +94,8 @@ class UserController extends Controller
             if ($isValid) {
                 $user = new User;
                 $user->userName = $request->username;
-                $user->userFullName = $request->userFullName;
-                $user->userEmail = $request->userEmail;
                 $user->password =  bcrypt($request->password);
                 $user->userRoleID = $request->userRoleID;
-                $user->userTelephone = $request->userTelephone;
-                $user->userAddress = $request->userAddress;
-                $user->userAvatar = $request->userAvatar;
-                $user->userStatus = $request->userStatus;
                 $isSuccess = $user->save();
                 return response()->json([
                     'user created' => $user,
