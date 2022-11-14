@@ -79,7 +79,7 @@ class AuthController extends Controller
 
         // remove username field in user data
         $userReturnData = [
-            'userID' => $user->userID,
+            'userID ahihia' => $user->userID,
             'userRoleID' => $user->userRoleID,
             'username' => $user->username,
         ];
