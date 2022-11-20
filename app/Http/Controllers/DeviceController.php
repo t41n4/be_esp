@@ -75,32 +75,47 @@ class DeviceController extends Controller
             // check if user is admin
             $status = $request->status;
 
-            $status == 'on' ?  DB::table('devices')->where('user_id', $userID)->update(['on_time' => date('Y-m-d H:i:s')]) : null;
-            $status == 'off' ? DB::table('devices')->where('user_id', $userID)->update(['off_time' => date('Y-m-d H:i:s')]) : null;
+            $db_on_time = DB::table('devices')->where('user_id', $userID)->first();
+            $db_on_time != null ? $db_on_time = $db_on_time->on_time : null;
 
-            $db_on_time = DB::table('devices')->where('user_id', $userID)->first()->on_time;
-            $db_off_time = DB::table('devices')->where('user_id', $userID)->first()->off_time;
+            $db_off_time = DB::table('devices')->where('user_id', $userID)->first();
+            $db_off_time != null ? $db_off_time = $db_off_time->off_time : null;
 
-            $duration_time_calc = strtotime($db_off_time) - strtotime($db_on_time);
+            $db_status = DB::table('devices')->where('user_id', $userID)->first();
+            $db_status != null ? $db_status = $db_status->status : null;
 
-            // update duration_active_time
-            if ($db_off_time > $db_on_time) {
-                DB::table('devices')->where('user_id', $userID)->update(['duration_active_time' => $duration_time_calc]);
-            } else {
-                DB::table('devices')->where('user_id', $userID)->update(['duration_active_time' => 0]);
+            if ($status == 'off' && $db_on_time == null) {
+                return response()->json([
+                    'message' => 'fail',
+                    'error' => 'device is not on'
+                ], 200);
             }
+
+            if ($db_status == 'on' && $status == 'off') {
+                $on_time = $db_on_time;
+                $off_time = date('Y-m-d H:i:s');
+
+                $on_time = strtotime($on_time);
+                $off_time = strtotime($off_time);
+
+                $time = $off_time - $on_time;
+
+                DB::table('devices')->where('user_id', $userID)->update(['off_time' => date('Y-m-d H:i:s'), 'status' => 'off', 'duration_active_time' => $time]);
+            }
+            if (($db_status == 'off' || $db_status == null) && $status == 'on') {
+                DB::table('devices')->where('user_id', $userID)->update(['on_time' => date('Y-m-d H:i:s'), 'status' => 'on', 'duration_active_time' => 0]);
+            }
+
+
 
             // get duration_active_time
             $db_duration_active_time = DB::table('devices')
                 ->where('user_id', $userID)
-                ->first()
-                ->duration_active_time;
+                ->first()->duration_active_time;
 
             return response()->json([
                 'message' => 'success',
                 'duration_active_time' => $db_duration_active_time,
-                'on_time' => $db_on_time,
-                'off_time' => $db_off_time,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
