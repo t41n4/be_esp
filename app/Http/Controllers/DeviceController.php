@@ -75,6 +75,13 @@ class DeviceController extends Controller
             // check if user is admin
             $status = $request->status;
 
+            // Corner case: user has no device
+            if (DB::table('devices')->where('user_id', $userID)->doesntExist()) {
+                return response()->json([
+                    'message' => 'You have no device'
+                ], 401);
+            }
+
             $db_on_time = DB::table('devices')->where('user_id', $userID)->first();
             $db_on_time != null ? $db_on_time = $db_on_time->on_time : null;
 
@@ -84,13 +91,15 @@ class DeviceController extends Controller
             $db_status = DB::table('devices')->where('user_id', $userID)->first();
             $db_status != null ? $db_status = $db_status->status : null;
 
+            // case: device already off
             if ($status == 'off' && $db_on_time == null) {
                 return response()->json([
                     'message' => 'fail',
-                    'error' => 'device is not on'
+                    'error' => 'device already off'
                 ], 200);
             }
 
+            // case: device is on
             if ($db_status == 'on' && $status == 'off') {
                 $on_time = $db_on_time;
                 $off_time = date('Y-m-d H:i:s');
@@ -102,11 +111,10 @@ class DeviceController extends Controller
 
                 DB::table('devices')->where('user_id', $userID)->update(['off_time' => date('Y-m-d H:i:s'), 'status' => 'off', 'duration_active_time' => $time]);
             }
+            // case: device is off
             if (($db_status == 'off' || $db_status == null) && $status == 'on') {
                 DB::table('devices')->where('user_id', $userID)->update(['on_time' => date('Y-m-d H:i:s'), 'status' => 'on', 'duration_active_time' => 0]);
             }
-
-
 
             // get duration_active_time
             $db_duration_active_time = DB::table('devices')
