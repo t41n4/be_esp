@@ -32,9 +32,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/insertUser', [UserController::class, 'create']);
     // get my profile
     Route::get('/getMyProfile', [UserController::class, 'getMyProfile']);
-    Route::post('/log', [DeviceController::class, 'postLog']);
-});
 
+});
+Route::post('/log', [DeviceController::class, 'postLog']);
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
