@@ -157,7 +157,17 @@ class DeviceController extends Controller
             $db_total_time = DB::table('devices')->where('id', $deviceID)->first();
             if ($db_total_time != null) {
                 if ($db_total_time->total_active_time != null) {
-                    $db_total_time = $db_total_time->total_active_time;
+                    // day of now
+                    $day = date('d');
+                    // day of db_off_time
+                    $db_off_time_day = date('d', strtotime($db_off_time));
+                    if ($day != $db_off_time_day) {
+                        $db_total_time = '00:00:00';
+                        //update total_active_time
+                        DB::table('devices')->where('id', $deviceID)->update(['total_active_time' => $db_total_time]);
+                    } else {
+                        $db_total_time = $db_total_time->total_active_time;
+                    }
                 } else {
                     $db_total_time = '00:00:00';
                 }
@@ -187,7 +197,6 @@ class DeviceController extends Controller
 
                 DB::table('devices')->where('id', $deviceID)->update(['off_time' => date('Y-m-d H:i:s'), 'status' => 'off', 'total_active_time' => $db_total_time]);
                 $db_status = 'off';
-
             }
             // case: device is offline
             if (($db_status == 'off' || $db_status == null) && $status == 'on') {
