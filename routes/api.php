@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\ItemController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\DeviceController;
 use App\Models\Role;
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/insertUser', [UserController::class, 'create']);
     // get my profile
     Route::get('/getMyProfile', [UserController::class, 'getMyProfile']);
+    Route::post('/log', [DeviceController::class, 'postLog']);
 });
 
 

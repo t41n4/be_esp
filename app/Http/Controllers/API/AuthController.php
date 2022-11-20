@@ -84,11 +84,16 @@ class AuthController extends Controller
             'username' => $user->username,
         ];
 
+        $duration_active_time = DB::table('devices')->where('user_id', $user->userID)->first();
+
         $response = [
             'user' => $userReturnData,
             'token' => $token,
+            'duration_active_time' => $duration_active_time == null ? 0 : $duration_active_time->duration_active_time,
             'message' => 'Login success'
         ];
+
+
 
         return response($response, 201);
     }
