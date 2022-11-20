@@ -75,22 +75,20 @@ class DeviceController extends Controller
             // check if user is admin
             $status = $request->status;
 
-            $rq_on_time = $status == 'on' ?   DB::table('devices')->where('user_id', $userID)->update(['on_time' => date('Y-m-d H:i:s')]) : null;
-            $rq_off_time = $status == 'off' ? DB::table('devices')->where('user_id', $userID)->update(['off_time' => date('Y-m-d H:i:s')]) : null;
+            $status == 'on' ?  DB::table('devices')->where('user_id', $userID)->update(['on_time' => date('Y-m-d H:i:s')]) : null;
+            $status == 'off' ? DB::table('devices')->where('user_id', $userID)->update(['off_time' => date('Y-m-d H:i:s')]) : null;
 
             $db_on_time = DB::table('devices')->where('user_id', $userID)->first()->on_time;
-
             $db_off_time = DB::table('devices')->where('user_id', $userID)->first()->off_time;
 
             $duration_time_calc = strtotime($db_off_time) - strtotime($db_on_time);
 
             // update duration_active_time
-           if($db_off_time > $db_on_time ){
+            if ($db_off_time > $db_on_time) {
                 DB::table('devices')->where('user_id', $userID)->update(['duration_active_time' => $duration_time_calc]);
-           }
-           else {
+            } else {
                 DB::table('devices')->where('user_id', $userID)->update(['duration_active_time' => 0]);
-              }
+            }
 
             // get duration_active_time
             $db_duration_active_time = DB::table('devices')
